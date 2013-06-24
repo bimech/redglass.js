@@ -1,0 +1,28 @@
+{
+    "name": "redglass",
+    "version": "0.1.0",
+    "title": "RedGlass - A plugin for monitoring browser events during an automation session.",
+    "description": "View an automated test from the browser's perspective.",
+    "keywords": [
+        "monitor",
+        "events",
+        "automated",
+        "test"
+    ],
+    "author": {
+        "name": "Frank O'Hara",
+        "url": "http://bimech.net"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://opensource.org/licenses/MIT"
+        }
+    ],
+    "homepage": "http://redglass.io",
+    "docs": "https://github.com/bimech/redglass.js#redglassjs",
+    "demo": "http://redglass.io",
+    "dependencies": {
+        "jquery": ">=1.8"
+    }
+}
