@@ -4,7 +4,9 @@
  */
 
 (function($) {
-    $.fn.redGlass = function(testID, port) {
+    $.fn.redGlass = function(testID, port, opts) {
+        var _opts = opts || {};
+        var ignoreXHRErrors = _opts.ignoreXHRErrors || true;
         port = typeof port == 'undefined' ? '4567' : port;
         var rg = {
             handleInteractionEvent: function(e){
@@ -17,8 +19,8 @@
                 $.each(desiredProperties, function(index, property){
                     eventData[property] = e[property];
                 })
-                eventData.target = $(e.target).getPath();
-                rg.sendEvent(JSON.stringify(eventData));
+                eventData.target = $(e.target).ellocate().css;
+                rg.sendEvent(eventData);
             },
             handleMutationEvent: function(e){
                 var eventData = {};
@@ -28,7 +30,7 @@
                 eventData.time = new Date().getTime();
                 eventData.type = e.type;
                 eventData.target = e.target.innerHTML == '' ? e.target.parent.innerHTML : e.target.innerHTML;
-                rg.sendEvent(JSON.stringify(eventData));
+                rg.sendEvent(eventData);
             },
             handleXHREvent: function(event){
                 var eventData = {};
@@ -44,7 +46,7 @@
                         eventData.response = event.response;
                         break;
                 }
-                rg.sendEvent(JSON.stringify(eventData));
+                rg.sendEvent(eventData);
             },
             handleErrorEvent: function(event){
                 var eventData = {};
@@ -56,14 +58,20 @@
                 eventData.target = event.errorUrl;
                 eventData.errorMessage = event.errorMessage;
                 eventData.errorLineNumber = event.errorLineNumber;
-                rg.sendEvent(JSON.stringify(eventData));
+                rg.sendEvent(eventData);
             },
             sendEvent: function(eventData){
-                var formData = new FormData();
-                formData.append("event_json", eventData);
                 var request = new XMLHttpRequest();
                 request.open('POST', "http://localhost:" + port, true);
-                request.send(formData);
+                request.setRequestHeader("Content-Type", "application/json");
+                if(ignoreXHRErrors) {
+                    request.onreadystatechange = function(event) {
+                        if(request.readyState == 4 && request.status != 200) {
+                            console.log("The RedGlass server returned an error while receiving the event data: " + request.status);
+                        }
+                    }
+                }
+                request.send(JSON.stringify({event_json: eventData}));
 
                 /*
                  Old versions of jQuery would return a 404 from the request below,

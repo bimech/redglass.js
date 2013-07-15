@@ -17,7 +17,7 @@
             "checkFailed": ["json2.js"]
         },
         {
-            "check": "function() { return typeof jQuery().getPath == 'function' ? true : false;}",
+            "check": "function() { return typeof jQuery().ellocate == 'function' ? true : false;}",
             "checkFailed": ["jquery.ellocate.js"]
         },
         {

@@ -1,6 +1,6 @@
 {
     "name": "redglass",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "main": "jquery.redglass.js",
     "ignore": [
         "bower_components",
