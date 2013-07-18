@@ -63,7 +63,6 @@
             sendEvent: function(eventData){
                 var request = new XMLHttpRequest();
                 request.open('POST', "http://localhost:" + port, true);
-                request.setRequestHeader("Content-Type", "application/json");
                 if(ignoreXHRErrors) {
                     request.onreadystatechange = function(event) {
                         if(request.readyState == 4 && request.status != 200) {
