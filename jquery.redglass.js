@@ -4,10 +4,13 @@
  */
 
 (function($) {
-    $.fn.redGlass = function(testID, port, opts) {
+    $.fn.redGlass = function(opts) {
         var _opts = opts || {};
         var ignoreXHRErrors = _opts.ignoreXHRErrors || true;
-        port = typeof port == 'undefined' ? '4567' : port;
+        var testID = _opts.testID || new Date().getTime();
+        var port = _opts.port || '4567';
+        var interactionEvents = _opts.interactionEvents.join(' ') || 'click keydown keyup';
+        var mutationEvents = _opts.mutationEvents.join(' ') || 'DOMNodeInserted DOMNodeRemoved';
         var rg = {
             handleInteractionEvent: function(e){
                 var eventData = {};
@@ -85,10 +88,10 @@
         }
 
         //Interaction events
-        this.bind("click keydown keyup", rg.handleInteractionEvent);
+        this.bind(interactionEvents, rg.handleInteractionEvent);
 
         //DOM mutation events
-        this.bind('DOMNodeInserted DOMNodeRemoved', rg.handleMutationEvent);
+        this.bind(mutationEvents, rg.handleMutationEvent);
 
         //XHR events
         (function() {
