@@ -9,8 +9,19 @@
         var ignoreXHRErrors = _opts.ignoreXHRErrors || true;
         var testID = _opts.testID || new Date().getTime();
         var port = _opts.port || '4567';
-        var interactionEvents = _opts.interactionEvents.join(' ') || 'click keydown keyup';
-        var mutationEvents = _opts.mutationEvents.join(' ') || 'DOMNodeInserted DOMNodeRemoved';
+
+        var interactionEvents;
+        if(_opts.interactionEvents) { interactionEvents =  _opts.interactionEvents.join(' '); }
+        else { interactionEvents = 'click keydown keyup'; }
+
+        var mutationEvents;
+        if(_opts.mutationEvents) { mutationEvents =  _opts.mutationEvents.join(' '); }
+        else { mutationEvents = 'DOMNodeInserted DOMNodeRemoved'; }
+
+        var useMemoryLog = _opts.useMemoryLog || true;
+        var useServerLog = _opts.useServerLog || false;
+        if(useMemoryLog && typeof window.RedGlassLog == 'undefined') { window.RedGlassLog = []; }
+
         var rg = {
             handleInteractionEvent: function(e){
                 var eventData = {};
@@ -64,26 +75,21 @@
                 rg.sendEvent(eventData);
             },
             sendEvent: function(eventData){
-                var request = new XMLHttpRequest();
-                request.open('POST', "http://localhost:" + port, true);
-                if(ignoreXHRErrors) {
-                    request.onreadystatechange = function(event) {
-                        if(request.readyState == 4 && request.status != 200) {
-                            console.log("The RedGlass server returned an error while receiving the event data: " + request.status);
+                if(useMemoryLog) {
+                    window.RedGlassLog.push(eventData);
+                }
+                if(useServerLog) {
+                    var request = new XMLHttpRequest();
+                    request.open('POST', "http://localhost:" + port, true);
+                    if(ignoreXHRErrors) {
+                        request.onreadystatechange = function(event) {
+                            if(request.readyState == 4 && request.status != 200) {
+                                console.log("The RedGlass server returned an error while receiving the event data: " + request.status);
+                            }
                         }
                     }
+                    request.send(JSON.stringify({event_json: eventData}));
                 }
-                request.send(JSON.stringify({event_json: eventData}));
-
-                /*
-                 Old versions of jQuery would return a 404 from the request below,
-                 so we must use the plain xhr above.
-                 $.ajax({
-                 url: "http://localhost:" + port,
-                 type: "POST",
-                 data: {event_json: eventData}
-                 })
-                 */
             }
         }
 
