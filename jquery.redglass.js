@@ -20,7 +20,8 @@
 
         var useMemoryLog = _opts.useMemoryLog || true;
         var useServerLog = _opts.useServerLog || false;
-        if(useMemoryLog && typeof window.RedGlassLog == 'undefined') { window.RedGlassLog = []; }
+        if(typeof window.RedGlass == 'undefined') { window.RedGlass = { logEnabled: true, log: [] }; }
+        else { window.RedGlass.logEnabled = _opts.logEnabled || true; }
 
         var rg = {
             handleInteractionEvent: function(e){
@@ -76,7 +77,7 @@
             },
             sendEvent: function(eventData){
                 if(useMemoryLog) {
-                    window.RedGlassLog.push(eventData);
+                    window.RedGlass.log.push(eventData);
                 }
                 if(useServerLog) {
                     var request = new XMLHttpRequest();
