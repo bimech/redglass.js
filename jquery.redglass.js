@@ -24,55 +24,45 @@
         else { window.RedGlass.logEnabled = _opts.logEnabled || true; }
 
         var rg = {
-            handleInteractionEvent: function(e){
-                var eventData = {};
-                eventData.id = '';
-                eventData.url = window.location.pathname;
-                eventData.testID = testID;
-                eventData.time = new Date().getTime();
-                var desiredProperties = ['type', 'pageX', 'pageY'];
-                $.each(desiredProperties, function(index, property){
-                    eventData[property] = e[property];
-                })
-                eventData.target = $(e.target).ellocate().css;
-                rg.sendEvent(eventData);
-            },
-            handleMutationEvent: function(e){
+            commonEvent: function(e){
                 var eventData = {};
                 eventData.id = '';
                 eventData.url = window.location.pathname;
                 eventData.testID = testID;
                 eventData.time = new Date().getTime();
                 eventData.type = e.type;
+                return eventData;
+            },
+            handleInteractionEvent: function(e){
+                var eventData = rg.commonEvent(e);
+                var desiredProperties = ['pageX', 'pageY'];
+                $.each(desiredProperties, function(index, property){
+                    eventData[property] = e[property];
+                });
+                eventData.target = $(e.target).ellocate().css;
+                rg.sendEvent(eventData);
+            },
+            handleMutationEvent: function(e){
+                var eventData = rg.commonEvent(e);
                 eventData.target = e.target.innerHTML == '' ? e.target.parent.innerHTML : e.target.innerHTML;
                 rg.sendEvent(eventData);
             },
-            handleXHREvent: function(event){
-                var eventData = {};
-                eventData.id = '';
-                eventData.url = window.location.pathname;
-                eventData.testID = testID;
-                eventData.time = new Date().getTime();
-                eventData.type = event.type;
-                eventData.target = event.url;
-                eventData.method = event.method;
-                switch(event.type){
+            handleXHREvent: function(e){
+                var eventData = rg.commonEvent(e);
+                eventData.target = e.url;
+                eventData.method = e.method;
+                switch(e.type){
                     case "xhr: Response returned":
-                        eventData.response = event.response;
+                        eventData.response = e.response;
                         break;
                 }
                 rg.sendEvent(eventData);
             },
-            handleErrorEvent: function(event){
-                var eventData = {};
-                eventData.id = '';
-                eventData.url = window.location.pathname;
-                eventData.testID = testID;
-                eventData.time = new Date().getTime();
-                eventData.type = event.type;
-                eventData.target = event.errorUrl;
-                eventData.errorMessage = event.errorMessage;
-                eventData.errorLineNumber = event.errorLineNumber;
+            handleErrorEvent: function(e){
+                var eventData = rg.commonEvent(e);
+                eventData.target = e.errorUrl;
+                eventData.errorMessage = e.errorMessage;
+                eventData.errorLineNumber = e.errorLineNumber;
                 rg.sendEvent(eventData);
             },
             sendEvent: function(eventData){
@@ -92,7 +82,7 @@
                     request.send(JSON.stringify({event_json: eventData}));
                 }
             }
-        }
+        };
 
         //Interaction events
         this.bind(interactionEvents, rg.handleInteractionEvent);
