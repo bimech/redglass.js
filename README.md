@@ -7,9 +7,9 @@ A jQuery plugin for monitoring browser events. RedGlass allows you to view an au
 
 ```javascript
 
-// The first parameter is an arbitrary test id.
-// The second parameter is the port (on localhost) where the observed events should be posted.
+$(document).redGlass({ testID: '1', port: '4567', useServerLog: true, useMemoryLog: true });
 
-$(document).redGlass('1', '4567');
+// Events will now be posted to http://localhost:4567
+// and are also accessible in the browser via RedGlass.log
 
 ```
