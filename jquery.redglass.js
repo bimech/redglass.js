@@ -4,91 +4,91 @@
  */
 
 (function($) {
-    $.fn.redGlass = function(testID, port, opts) {
+    $.fn.redGlass = function(opts) {
         var _opts = opts || {};
         var ignoreXHRErrors = _opts.ignoreXHRErrors || true;
-        port = typeof port == 'undefined' ? '4567' : port;
+        var testID = _opts.testID || new Date().getTime();
+        var port = _opts.port || '4567';
+
+        var interactionEvents;
+        if(_opts.interactionEvents) { interactionEvents =  _opts.interactionEvents.join(' '); }
+        else { interactionEvents = 'click keydown keyup'; }
+
+        var mutationEvents;
+        if(_opts.mutationEvents) { mutationEvents =  _opts.mutationEvents.join(' '); }
+        else { mutationEvents = 'DOMNodeInserted DOMNodeRemoved'; }
+
+        var useMemoryLog = _opts.useMemoryLog || true;
+        var useServerLog = _opts.useServerLog || false;
+        if(typeof window.RedGlass == 'undefined') { window.RedGlass = { logEnabled: true, log: [] }; }
+        else { window.RedGlass.logEnabled = _opts.logEnabled || true; }
+
         var rg = {
-            handleInteractionEvent: function(e){
-                var eventData = {};
-                eventData.id = '';
-                eventData.url = window.location.pathname;
-                eventData.testID = testID;
-                eventData.time = new Date().getTime();
-                var desiredProperties = ['type', 'pageX', 'pageY'];
-                $.each(desiredProperties, function(index, property){
-                    eventData[property] = e[property];
-                })
-                eventData.target = $(e.target).ellocate().css;
-                rg.sendEvent(eventData);
-            },
-            handleMutationEvent: function(e){
+            commonEvent: function(e){
                 var eventData = {};
                 eventData.id = '';
                 eventData.url = window.location.pathname;
                 eventData.testID = testID;
                 eventData.time = new Date().getTime();
                 eventData.type = e.type;
+                return eventData;
+            },
+            handleInteractionEvent: function(e){
+                var eventData = rg.commonEvent(e);
+                var desiredProperties = ['pageX', 'pageY'];
+                $.each(desiredProperties, function(index, property){
+                    eventData[property] = e[property];
+                });
+                eventData.target = $(e.target).ellocate().css;
+                rg.sendEvent(eventData);
+            },
+            handleMutationEvent: function(e){
+                var eventData = rg.commonEvent(e);
                 eventData.target = e.target.innerHTML == '' ? e.target.parent.innerHTML : e.target.innerHTML;
                 rg.sendEvent(eventData);
             },
-            handleXHREvent: function(event){
-                var eventData = {};
-                eventData.id = '';
-                eventData.url = window.location.pathname;
-                eventData.testID = testID;
-                eventData.time = new Date().getTime();
-                eventData.type = event.type;
-                eventData.target = event.url;
-                eventData.method = event.method;
-                switch(event.type){
+            handleXHREvent: function(e){
+                var eventData = rg.commonEvent(e);
+                eventData.target = e.url;
+                eventData.method = e.method;
+                switch(e.type){
                     case "xhr: Response returned":
-                        eventData.response = event.response;
+                        eventData.response = e.response;
                         break;
                 }
                 rg.sendEvent(eventData);
             },
-            handleErrorEvent: function(event){
-                var eventData = {};
-                eventData.id = '';
-                eventData.url = window.location.pathname;
-                eventData.testID = testID;
-                eventData.time = new Date().getTime();
-                eventData.type = event.type;
-                eventData.target = event.errorUrl;
-                eventData.errorMessage = event.errorMessage;
-                eventData.errorLineNumber = event.errorLineNumber;
+            handleErrorEvent: function(e){
+                var eventData = rg.commonEvent(e);
+                eventData.target = e.errorUrl;
+                eventData.errorMessage = e.errorMessage;
+                eventData.errorLineNumber = e.errorLineNumber;
                 rg.sendEvent(eventData);
             },
             sendEvent: function(eventData){
-                var request = new XMLHttpRequest();
-                request.open('POST', "http://localhost:" + port, true);
-                if(ignoreXHRErrors) {
-                    request.onreadystatechange = function(event) {
-                        if(request.readyState == 4 && request.status != 200) {
-                            console.log("The RedGlass server returned an error while receiving the event data: " + request.status);
+                if(useMemoryLog) {
+                    window.RedGlass.log.push(eventData);
+                }
+                if(useServerLog) {
+                    var request = new XMLHttpRequest();
+                    request.open('POST', "http://localhost:" + port, true);
+                    if(ignoreXHRErrors) {
+                        request.onreadystatechange = function(event) {
+                            if(request.readyState == 4 && request.status != 200) {
+                                console.log("The RedGlass server returned an error while receiving the event data: " + request.status);
+                            }
                         }
                     }
+                    request.send(JSON.stringify({event_json: eventData}));
                 }
-                request.send(JSON.stringify({event_json: eventData}));
-
-                /*
-                 Old versions of jQuery would return a 404 from the request below,
-                 so we must use the plain xhr above.
-                 $.ajax({
-                 url: "http://localhost:" + port,
-                 type: "POST",
-                 data: {event_json: eventData}
-                 })
-                 */
             }
-        }
+        };
 
         //Interaction events
-        this.bind("click keydown keyup", rg.handleInteractionEvent);
+        this.bind(interactionEvents, rg.handleInteractionEvent);
 
         //DOM mutation events
-        this.bind('DOMNodeInserted DOMNodeRemoved', rg.handleMutationEvent);
+        this.bind(mutationEvents, rg.handleMutationEvent);
 
         //XHR events
         (function() {

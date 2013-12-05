@@ -7,7 +7,7 @@ var TestResponses = {
 
 describe("RedGlass", function() {
     beforeEach(function() {
-        $(document).redGlass(1);
+        $(document).redGlass({ useServerLog: true });
         jasmine.Ajax.useMock();
     });
     describe("http method", function() {
@@ -68,4 +68,32 @@ describe("RedGlass", function() {
             });
         });
     });
+});
+
+describe('RedGlass#log', function() {
+    beforeEach(function() {
+        $(document).redGlass({ useMemoryLog: true });
+        jasmine.Ajax.useMock();
+    });
+    describe("scope", function() {
+        it('is global', function() {
+            expect(typeof RedGlass).toBe('object');
+        });
+    });
+    describe("logEnabled", function() {
+        it('is enabled by default', function() {
+            expect(RedGlass.logEnabled).toBe(true);
+        });
+    });
+
+    describe("interaction events", function() {
+        describe("click event", function() {
+            it('is observed and transmitted', function() {
+                $('#ellocate').click();
+                var eventData = RedGlass.log[0];
+                expect(eventData.type).toBe('click');
+            });
+        });
+    });
+
 });
