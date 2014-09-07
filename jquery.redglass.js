@@ -192,6 +192,16 @@
             };
         },
 
+        destroy: function() {
+            this.record(false);
+            this.options.log = [];
+            this.recordInteractionEvents(false);
+            this.recordMutationEvents(false);
+            this.recordXHREvents(false);
+            this.recordErrorEvents(false);
+            $.Widget.prototype.destroy.call(this);
+        },
+
         _baseEventHandler: function(e) {
             var eventData = {};
             eventData.id = '';
