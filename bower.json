@@ -8,6 +8,7 @@
     ],
     "dependencies": {
         "jquery": "1.8.0",
+        "jquery-ui": "1.11.1",
         "json2": "e39db4b7e6249f04a195e7dd0840e610cc9e941e",
         "carryall": "0.1.2",
         "ellocate": "0.1.0"
