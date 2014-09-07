@@ -7,11 +7,15 @@ var TestResponses = {
 
 describe("RedGlass", function() {
     beforeEach(function() {
-        $(document).redGlass({ useServerLog: true });
+        $(document).redGlass({ useServerLog: false });
         jasmine.Ajax.useMock();
+    });
+    afterEach(function() {
+        $(document).redGlass({ useServerLog: false});
     });
     describe("http method", function() {
         it('is POST', function() {
+            $(document).redGlass({ useServerLog: true });
             $('#ellocate').click();
             var request = mostRecentAjaxRequest();
             expect(request.method).toBe('POST');
@@ -19,6 +23,7 @@ describe("RedGlass", function() {
     });
     describe("url port", function() {
         it('defaults to 4567', function() {
+            $(document).redGlass({ useServerLog: true });
             $('#ellocate').click();
             var request = mostRecentAjaxRequest();
             expect(request.url).toBe('http://localhost:4567');
@@ -27,6 +32,7 @@ describe("RedGlass", function() {
     describe("interaction events", function() {
         describe("click event", function() {
             it('is observed and transmitted', function() {
+                $(document).redGlass({ useServerLog: true });
                 $('#ellocate').click();
                 var request = mostRecentAjaxRequest();
                 var eventData = JSON.parse(request.params).event_json;
@@ -35,6 +41,7 @@ describe("RedGlass", function() {
         });
         describe("keydown event", function() {
             it('is observed and transmitted', function() {
+                $(document).redGlass({ useServerLog: true });
                 $('#ellocate').keydown();
                 var request = mostRecentAjaxRequest();
                 var eventData = JSON.parse(request.params).event_json;
@@ -43,6 +50,7 @@ describe("RedGlass", function() {
         });
         describe("keyup event", function() {
             it('is observed and transmitted', function() {
+                $(document).redGlass({ useServerLog: true });
                 $('#ellocate').keyup();
                 var request = mostRecentAjaxRequest();
                 var eventData = JSON.parse(request.params).event_json;
@@ -53,6 +61,7 @@ describe("RedGlass", function() {
     describe("mutation events", function() {
         describe("DOMNodeInserted event", function() {
             it('is observed and transmitted', function() {
+                $(document).redGlass({ useServerLog: true });
                 $('#ellocate').append("<h2>New node.</h2>");
                 var request = mostRecentAjaxRequest();
                 var eventData = JSON.parse(request.params).event_json;
@@ -61,6 +70,7 @@ describe("RedGlass", function() {
         });
         describe("DOMNodeRemoved event", function() {
             it('is observed and transmitted', function() {
+                $(document).redGlass({ useServerLog: true });
                 $('#dupe').remove();
                 var request = mostRecentAjaxRequest();
                 var eventData = JSON.parse(request.params).event_json;
@@ -75,22 +85,27 @@ describe('RedGlass#log', function() {
         $(document).redGlass({ useMemoryLog: true });
         jasmine.Ajax.useMock();
     });
-    describe("scope", function() {
-        it('is global', function() {
-            expect(typeof RedGlass).toBe('object');
-        });
+    afterEach(function() {
+        $(document).redGlass('record', true);
     });
-    describe("logEnabled", function() {
-        it('is enabled by default', function() {
-            expect(RedGlass.logEnabled).toBe(true);
-        });
+    it('is public', function() {
+        expect(typeof $(document).redGlass('log')).toBe('object');
+    });
+    it('is enabled by default', function() {
+        expect($(document).redGlass('useMemoryLog')).toBe(true);
+    });
+    it('is not logged if record is set to false', function() {
+        var count = $(document).redGlass('log').length;
+        $(document).redGlass('record', false);
+        $('#ellocate').click();
+        expect($(document).redGlass('log').length).toBe(count);
     });
 
     describe("interaction events", function() {
         describe("click event", function() {
             it('is observed and transmitted', function() {
                 $('#ellocate').click();
-                var eventData = RedGlass.log[0];
+                var eventData = $(document).redGlass('log')[0];
                 expect(eventData.type).toBe('click');
             });
         });

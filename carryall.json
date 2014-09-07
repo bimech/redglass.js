@@ -3,25 +3,30 @@
     "outDir": "./carryall_build",
     "cargoList": [
         { "name": "jquery.js", "path": "bower_components/jquery" },
+        { "name": "jquery-ui.js", "path": "bower_components/jquery-ui" },
         { "name": "json2.js", "path": "bower_components/json2" },
         { "name": "jquery.ellocate.js", "path": "bower_components/ellocate" },
         { "name": "jquery.redglass.js", "path": "" }
     ],
     "checks":[
         {
-            "check": "function() { return typeof jQuery == 'function' ? true : false;}",
+            "check": "function() { return typeof jQuery == 'function';}",
             "checkFailed": ["jquery.js"]
+        },
+        {
+            "check": "function() { return typeof jQuery == 'function' && typeof jQuery.widget == 'function';}",
+            "checkFailed": ["jquery-ui.js"]
         },
         {
             "check": "function() { var hasOldJSON = typeof JSON.license == 'undefined' ? false : true; if(hasOldJSON) { delete JSON; return false; } else { return true;}}",
             "checkFailed": ["json2.js"]
         },
         {
-            "check": "function() { return typeof jQuery().ellocate == 'function' ? true : false;}",
+            "check": "function() { return typeof jQuery().ellocate == 'function';}",
             "checkFailed": ["jquery.ellocate.js"]
         },
         {
-            "check": "function() { return typeof jQuery().redGlass == 'function' ? true : false;}",
+            "check": "function() { return typeof jQuery().redGlass == 'function';}",
             "checkFailed": ["jquery.redglass.js"]
         }
     ]
