@@ -26,7 +26,7 @@ describe("RedGlass", function() {
             $(document).redGlass({ useServerLog: true });
             $('#ellocate').click();
             var request = mostRecentAjaxRequest();
-            expect(request.url).toBe('http://localhost:4567');
+            expect(request.url).toBe('//localhost:4567');
         });
     });
     describe("interaction events", function() {

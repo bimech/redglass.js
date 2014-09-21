@@ -125,7 +125,7 @@
                 XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
                     //Handle readyState changes
                     this.addEventListener("readystatechange", function() {
-                        if(url != "http://localhost:" + self.options.port) {
+                        if(url != "//localhost:" + self.options.port) {
                             var eventData = {};
                             eventData.method = method;
                             var readyStateDesc = '';
@@ -264,7 +264,7 @@
             }
             if(this.options.useServerLog) {
                 var request = new XMLHttpRequest();
-                request.open('POST', "http://localhost:" + this.options.port, true);
+                request.open('POST', "//localhost:" + this.options.port, true);
                 if(this.options.ignoreServerLogErrors) {
                     request.onreadystatechange = function(event) {
                         if(request.readyState === 4 && request.status !== 200) {
